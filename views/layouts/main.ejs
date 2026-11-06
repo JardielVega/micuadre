@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= locals.title ? title + ' | ' : '' %>Cuadre</title>
+  <script src="/js/theme-init.js"></script>
+  <link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="min-h-[100dvh]">
+  <% if (user && user.role === 'jefe') { %>
+    <div class="lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">
+      <%- include('../partials/sidebar') %>
+      <main class="min-w-0 px-4 py-6 sm:px-8 lg:py-10">
+        <div class="mx-auto max-w-5xl"><%- body %><%- include('../partials/footer') %></div>
+      </main>
+    </div>
+  <% } else if (user) { %>
+    <%- include('../partials/topbar') %>
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:py-8"><%- body %><%- include('../partials/footer') %></main>
+  <% } else { %>
+    <div class="fixed right-4 top-4 z-30"><%- include('../partials/theme-toggle') %></div>
+    <main><%- body %></main>
+  <% } %>
+
+  <%- include('../partials/flash') %>
+  <%- include('../partials/confirm') %>
+  <script src="/js/app.js" defer></script>
+  <% if (locals.pageScript) { %><script src="<%= pageScript %>" defer></script><% } %>
+</body>
+</html>

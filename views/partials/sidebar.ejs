@@ -1,0 +1,36 @@
+<aside class="border-b border-line bg-surface lg:sticky lg:top-0 lg:flex lg:h-[100dvh] lg:flex-col lg:border-b-0 lg:border-r">
+  <div class="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
+    <%- include('brand') %>
+    <div class="flex items-center gap-1 lg:hidden">
+      <%- include('theme-toggle') %>
+      <form method="post" action="/auth/salir">
+        <button class="icon-btn" aria-label="Cerrar sesión"><%- icon('sign-out', 'size-[18px]') %></button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-1 lg:flex-col lg:overflow-visible lg:pb-0" aria-label="Principal">
+    <a href="/productos" class="nav-item" <%- path.startsWith('/productos') ? 'aria-current="page"' : '' %>>
+      <%- icon('package', 'size-[18px]') %>Inventario
+    </a>
+    <a href="/dependientes" class="nav-item" <%- path.startsWith('/dependientes') ? 'aria-current="page"' : '' %>>
+      <%- icon('users-three', 'size-[18px]') %>Dependientes
+    </a>
+    <a href="/cuadre" class="nav-item" <%- path.startsWith('/cuadre') ? 'aria-current="page"' : '' %>>
+      <%- icon('receipt', 'size-[18px]') %>Cuadre
+    </a>
+  </nav>
+
+  <div class="hidden border-t border-line p-3 lg:block">
+    <div class="flex items-center justify-between gap-2 px-2 pb-3">
+      <div class="min-w-0">
+        <p class="truncate text-sm font-medium"><%= user.name %></p>
+        <p class="text-xs text-muted">Jefe</p>
+      </div>
+      <%- include('theme-toggle') %>
+    </div>
+    <form method="post" action="/auth/salir">
+      <button class="btn btn-quiet btn-sm w-full"><%- icon('sign-out') %>Cerrar sesión</button>
+    </form>
+  </div>
+</aside>

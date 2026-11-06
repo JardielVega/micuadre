@@ -1,0 +1,21 @@
+<% if (pager.total > 0) { %>
+<div class="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+  <p class="text-muted">
+    Página <span class="num text-ink"><%= pager.page %></span> de <span class="num text-ink"><%= pager.pages %></span>,
+    <span class="num text-ink"><%= pager.total %></span> resultado<%= pager.total === 1 ? '' : 's' %>
+  </p>
+  <% if (pager.pages > 1) { %>
+    <nav class="flex items-center gap-1" aria-label="Paginación">
+      <% if (pager.page > 1) { %>
+        <a class="page-btn" href="<%= urlWith({ page: pager.page - 1 }) %>" aria-label="Página anterior"><%- icon('caret-left') %></a>
+      <% } %>
+      <% for (let p = Math.max(1, pager.page - 2); p <= Math.min(pager.pages, pager.page + 2); p++) { %>
+        <a class="page-btn" href="<%= urlWith({ page: p }) %>" <%- p === pager.page ? 'aria-current="page"' : '' %>><%= p %></a>
+      <% } %>
+      <% if (pager.page < pager.pages) { %>
+        <a class="page-btn" href="<%= urlWith({ page: pager.page + 1 }) %>" aria-label="Página siguiente"><%- icon('caret-right') %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</div>
+<% } %>

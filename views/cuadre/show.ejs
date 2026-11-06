@@ -1,0 +1,63 @@
+<div data-stagger>
+  <header>
+    <a href="/cuadre" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink"><%- icon('arrow-left') %>Cuadre</a>
+    <h1 class="text-2xl">Cierre <span class="num">#<%= closure.id %></span></h1>
+    <p class="mt-1 text-sm text-muted">
+      Finalizado por <span class="text-ink"><%= closure.closedBy ? closure.closedBy.name : 'un dependiente' %></span> el <span class="num"><%= fmtDate(closure.createdAt) %></span>.
+    </p>
+  </header>
+
+  <dl class="mt-8 grid gap-6 border-y border-line py-6 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:gap-0">
+    <div class="stat lg:pr-6">
+      <dt>Ganancia</dt>
+      <dd class="!text-4xl <%= closure.profit < 0 ? '!text-danger' : '!text-ok' %>"><%= money(closure.profit) %></dd>
+    </div>
+    <div class="stat lg:border-l lg:border-line lg:px-6"><dt>Vendido</dt><dd><%= money(closure.total) %></dd></div>
+    <div class="stat lg:border-l lg:border-line lg:px-6"><dt>Costo</dt><dd><%= money(closure.cost) %></dd></div>
+    <div class="stat lg:border-l lg:border-line lg:px-6"><dt>Ventas</dt><dd><%= closure.salesCount %></dd></div>
+    <div class="stat lg:border-l lg:border-line lg:pl-6"><dt>Unidades</dt><dd><%= closure.unitsCount %></dd></div>
+  </dl>
+
+  <section class="mt-12" aria-label="Ganancia por producto">
+    <h2 class="text-lg">Ganancia por producto</h2>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr><th>Producto</th><th class="r">Unidades</th><th class="r">Ingreso</th><th class="r">Costo</th><th class="r">Ganancia</th></tr>
+        </thead>
+        <tbody>
+          <% products.forEach(function (p) { %>
+            <tr>
+              <td class="font-medium"><%= p.name %></td>
+              <td class="r num"><%= p.quantity %></td>
+              <td class="r num"><%= money(p.revenue) %></td>
+              <td class="r num text-muted"><%= money(p.cost) %></td>
+              <td class="r num font-medium <%= p.profit < 0 ? 'text-danger' : 'text-ok' %>"><%= money(p.profit) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-12" aria-label="Ventas del día">
+    <h2 class="text-lg">Ventas del día</h2>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr><th>Hora</th><th>Productos</th><th class="r">Total</th><th class="r">Ganancia</th></tr>
+        </thead>
+        <tbody>
+          <% closure.sales.forEach(function (s) { %>
+            <tr>
+              <td class="num whitespace-nowrap text-muted"><%= fmtDate(s.createdAt) %></td>
+              <td><% s.items.forEach(function (i) { %><span class="mr-3 inline-block"><span class="num text-muted"><%= i.quantity %>x</span> <%= i.productName %> <span class="num text-xs text-faint"><%= money(i.unitPrice) %></span></span><% }) %></td>
+              <td class="r num"><%= money(s.total) %></td>
+              <td class="r num text-ok"><%= money(s.profit) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

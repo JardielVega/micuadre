@@ -1,0 +1,111 @@
+<div data-stagger>
+  <header>
+    <h1 class="text-2xl">Cuadre</h1>
+    <p class="mt-1 text-sm text-muted">Lo vendido y lo ganado en los días que tus dependientes ya finalizaron.</p>
+  </header>
+
+  <form method="get" action="/cuadre" class="mt-8 flex flex-wrap items-end gap-3">
+    <div>
+      <label class="label" for="desde">Desde</label>
+      <input class="input num !w-auto" type="date" id="desde" name="desde" value="<%= filters.desde %>">
+    </div>
+    <div>
+      <label class="label" for="hasta">Hasta</label>
+      <input class="input num !w-auto" type="date" id="hasta" name="hasta" value="<%= filters.hasta %>">
+    </div>
+    <div>
+      <label class="label" for="limit">Por página</label>
+      <select class="input !w-auto" id="limit" name="limit">
+        <% limits.forEach(function (n) { %><option value="<%= n %>" <%= pager.limit === n ? 'selected' : '' %>><%= n %></option><% }) %>
+      </select>
+    </div>
+    <button class="btn btn-quiet">Filtrar</button>
+    <% if (filters.desde || filters.hasta) { %><a href="/cuadre" class="link mb-2.5">Limpiar</a><% } %>
+  </form>
+
+  <dl class="mt-8 grid gap-6 border-y border-line py-6 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-0">
+    <div class="stat lg:pr-6">
+      <dt>Ganancia</dt>
+      <dd class="!text-4xl <%= totals.profit < 0 ? '!text-danger' : '!text-ok' %>"><%= money(totals.profit) %></dd>
+    </div>
+    <div class="stat lg:border-l lg:border-line lg:px-6"><dt>Vendido</dt><dd><%= money(totals.total) %></dd></div>
+    <div class="stat lg:border-l lg:border-line lg:px-6"><dt>Costo de lo vendido</dt><dd><%= money(totals.cost) %></dd></div>
+    <div class="stat lg:border-l lg:border-line lg:pl-6"><dt>Días finalizados</dt><dd><%= pager.total %></dd></div>
+  </dl>
+
+  <!-- Ventas aún no finalizadas -->
+  <section class="mt-12" aria-label="Pendiente de finalizar">
+    <h2 class="text-lg">Pendiente de finalizar</h2>
+    <p class="mt-1 text-sm text-muted">Ventas de hoy que los dependientes todavía no han cerrado.</p>
+
+    <% if (pending.length === 0) { %>
+      <p class="mt-4 flex items-center gap-2 text-sm text-muted"><%- icon('check-circle', 'size-[18px] text-ok') %>No hay ventas pendientes.</p>
+    <% } else { %>
+      <div class="mt-4 overflow-x-auto">
+        <table class="tbl">
+          <thead>
+            <tr><th>Hora</th><th>Dependiente</th><th>Productos</th><th class="r">Total</th><th class="r">Ganancia</th><th><span class="sr-only">Anular</span></th></tr>
+          </thead>
+          <tbody>
+            <% pending.forEach(function (s) { %>
+              <tr>
+                <td class="num whitespace-nowrap text-muted"><%= fmtDate(s.createdAt) %></td>
+                <td><%= s.seller ? s.seller.name : 'Sin asignar' %></td>
+                <td><% s.items.forEach(function (i) { %><span class="mr-3 inline-block"><span class="num text-muted"><%= i.quantity %>x</span> <%= i.productName %></span><% }) %></td>
+                <td class="r num"><%= money(s.total) %></td>
+                <td class="r num text-ok"><%= money(s.profit) %></td>
+                <td class="r">
+                  <form method="post" action="/vender/ventas/<%= s.id %>?_method=DELETE"
+                        data-confirm="¿Anular esta venta?" data-confirm-detail="Los productos vuelven al inventario."
+                        data-confirm-label="Anular venta" data-confirm-tone="danger">
+                    <button class="icon-btn is-danger" aria-label="Anular venta" title="Anular"><%- icon('x', 'size-[18px]') %></button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-sm text-muted">Ganancia estimada si se cierran ahora: <span class="num text-ink"><%= money(pendingProfit) %></span></p>
+    <% } %>
+  </section>
+
+  <!-- Historial -->
+  <section class="mt-12" aria-label="Días finalizados">
+    <h2 class="text-lg">Días finalizados</h2>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Cierre</th><th>Dependiente</th><th class="r">Ventas</th><th class="r">Unidades</th>
+            <th class="r">Total</th><th class="r">Costo</th><th class="r">Ganancia</th><th><span class="sr-only">Detalle</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (closures.length === 0) { %>
+            <tr><td colspan="8" class="!py-14 text-center">
+              <p class="font-medium">No hay días finalizados<%= filters.desde || filters.hasta ? ' en ese periodo' : ' todavía' %></p>
+              <% if (!(filters.desde || filters.hasta)) { %><p class="mt-1 text-sm text-muted">Aparecerán aquí cuando un dependiente pulse Finalizar día.</p><% } %>
+            </td></tr>
+          <% } %>
+          <% closures.forEach(function (c) { %>
+            <tr>
+              <td class="whitespace-nowrap">
+                <a class="font-medium underline decoration-transparent underline-offset-4 transition-colors hover:decoration-line-strong" href="/cuadre/<%= c.id %>">Cierre <span class="num">#<%= c.id %></span></a>
+                <span class="num block text-xs text-muted"><%= fmtDate(c.createdAt) %></span>
+              </td>
+              <td><%= c.closedBy ? c.closedBy.name : 'Sin asignar' %></td>
+              <td class="r num"><%= c.salesCount %></td>
+              <td class="r num"><%= c.unitsCount %></td>
+              <td class="r num"><%= money(c.total) %></td>
+              <td class="r num text-muted"><%= money(c.cost) %></td>
+              <td class="r num font-medium <%= c.profit < 0 ? 'text-danger' : 'text-ok' %>"><%= money(c.profit) %></td>
+              <td class="r"><a class="icon-btn" href="/cuadre/<%= c.id %>" aria-label="Ver detalle del cierre <%= c.id %>" title="Ver detalle"><%- icon('arrow-right', 'size-[18px]') %></a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <%- include('../partials/pagination') %>
+  </section>
+</div>

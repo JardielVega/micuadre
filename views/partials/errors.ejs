@@ -1,0 +1,9 @@
+<% const list = locals.formErrors || []; %>
+<% if (list.length) { %>
+  <div class="flash-in mb-5 flex items-start gap-2.5 rounded-lg border border-danger/40 bg-danger/5 px-4 py-3 text-sm" role="alert">
+    <span class="mt-0.5 text-danger"><%- icon('warning-circle', 'size-[18px]') %></span>
+    <ul class="space-y-0.5">
+      <% list.forEach(function (e) { %><li><%= e %></li><% }) %>
+    </ul>
+  </div>
+<% } %>

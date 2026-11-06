@@ -1,0 +1,46 @@
+<div data-stagger>
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl">Dependientes</h1>
+      <p class="mt-1 text-sm text-muted">Crea sus cuentas y entrégales el usuario y la contraseña.</p>
+    </div>
+    <a href="/dependientes/nuevo" class="btn btn-ink"><%- icon('user-plus') %>Nuevo dependiente</a>
+  </header>
+
+  <div class="mt-8 overflow-x-auto">
+    <table class="tbl">
+      <thead>
+        <tr><th>Nombre</th><th>Usuario</th><th>Estado</th><th>Creado</th><th><span class="sr-only">Acciones</span></th></tr>
+      </thead>
+      <tbody>
+        <% if (staff.length === 0) { %>
+          <tr><td colspan="5" class="!py-14 text-center">
+            <p class="font-medium">Todavía no tienes dependientes</p>
+            <p class="mt-1 text-sm text-muted">Crea una cuenta para que alguien pueda vender en tu tienda.</p>
+            <a href="/dependientes/nuevo" class="btn btn-ink btn-sm mt-4"><%- icon('user-plus') %>Nuevo dependiente</a>
+          </td></tr>
+        <% } %>
+        <% staff.forEach(function (s) { %>
+          <tr>
+            <td class="font-medium"><%= s.name %></td>
+            <td class="num text-muted"><%= s.username %></td>
+            <td><span class="tag <%= s.active ? 'tag-ok' : 'tag-mute' %>"><%= s.active ? 'Activo' : 'Desactivado' %></span></td>
+            <td class="num text-muted"><%= fmtDate(s.createdAt) %></td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <form method="post" action="/dependientes/<%= s.id %>/estado">
+                  <button class="btn btn-quiet btn-sm"><%= s.active ? 'Desactivar' : 'Activar' %></button>
+                </form>
+                <form method="post" action="/dependientes/<%= s.id %>?_method=DELETE"
+                      data-confirm="¿Eliminar a &quot;<%= s.name %>&quot;?" data-confirm-detail="Si ya tiene ventas, desactívalo en su lugar."
+                      data-confirm-label="Eliminar" data-confirm-tone="danger">
+                  <button class="icon-btn is-danger" aria-label="Eliminar a <%= s.name %>" title="Eliminar"><%- icon('trash', 'size-[18px]') %></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

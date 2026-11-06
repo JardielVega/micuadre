@@ -1,0 +1,50 @@
+<div data-stagger>
+  <header>
+    <a href="/productos" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink"><%- icon('arrow-left') %>Inventario</a>
+    <h1 class="text-2xl"><%= heading %></h1>
+  </header>
+
+  <div class="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
+    <form method="post" action="<%= action %>" class="max-w-xl space-y-5" novalidate>
+      <%- include('../partials/errors', { formErrors: errors }) %>
+      <div>
+        <label class="label" for="name">Nombre del producto</label>
+        <input class="input" id="name" name="name" value="<%= values.name || '' %>" maxlength="100" required autofocus>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label class="label" for="costPrice">Precio de compra</label>
+          <input class="input num" type="number" inputmode="decimal" step="0.01" min="0" id="costPrice" name="costPrice" value="<%= values.costPrice ?? '' %>" required>
+        </div>
+        <div>
+          <label class="label" for="salePrice">Precio a vender</label>
+          <input class="input num" type="number" inputmode="decimal" step="0.01" min="0.01" id="salePrice" name="salePrice" value="<%= values.salePrice ?? '' %>" required>
+        </div>
+      </div>
+      <div class="sm:max-w-[calc(50%-0.625rem)]">
+        <label class="label" for="stock">Cantidad en inventario</label>
+        <input class="input num" type="number" inputmode="numeric" step="1" min="0" id="stock" name="stock" value="<%= values.stock ?? 0 %>" required>
+      </div>
+      <label class="flex items-start gap-2.5 text-sm">
+        <input type="checkbox" name="active" class="mt-0.5 size-4 accent-[rgb(var(--c-accent))]" <%= values.active ? 'checked' : '' %>>
+        <span>Producto activo<span class="block text-xs text-muted">Los dependientes solo ven y venden productos activos.</span></span>
+      </label>
+      <div class="flex gap-2 pt-2">
+        <button class="btn btn-ink">Guardar producto</button>
+        <a href="/productos" class="btn btn-quiet">Cancelar</a>
+      </div>
+    </form>
+
+    <aside class="lg:pt-8">
+      <div class="panel p-5" aria-live="polite">
+        <p class="text-xs font-medium text-muted">Ganancia por unidad</p>
+        <p id="margin-unit" class="num mt-1 text-3xl font-medium tracking-tight">$0,00</p>
+        <p class="mt-1 text-sm text-muted">Margen <span id="margin-pct" class="num text-ink">0 %</span></p>
+        <hr class="my-4 border-line">
+        <p class="text-xs font-medium text-muted">Si vendes todo el stock</p>
+        <p id="margin-total" class="num mt-1 text-lg font-medium">$0,00</p>
+      </div>
+    </aside>
+  </div>
+</div>
+<script src="/js/product-form.js" defer></script>

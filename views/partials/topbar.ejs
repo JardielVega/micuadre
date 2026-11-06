@@ -1,0 +1,15 @@
+<header class="border-b border-line bg-surface">
+  <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-8">
+    <%- include('brand') %>
+    <nav class="hidden sm:block" aria-label="Principal">
+      <a href="/vender" class="nav-item" aria-current="page"><%- icon('shopping-cart-simple', 'size-[18px]') %>Vender</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-2">
+      <span class="hidden text-sm text-muted sm:block"><%= user.name %></span>
+      <%- include('theme-toggle') %>
+      <form method="post" action="/auth/salir">
+        <button class="btn btn-quiet btn-sm"><%- icon('sign-out') %>Salir</button>
+      </form>
+    </div>
+  </div>
+</header>

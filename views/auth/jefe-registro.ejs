@@ -1,0 +1,38 @@
+<div class="mx-auto flex min-h-[100dvh] max-w-sm flex-col justify-center px-6 py-12">
+  <a href="/auth/jefe" class="mb-10 inline-flex w-fit items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink"><%- icon('arrow-left') %>Volver al inicio de sesión</a>
+
+  <div data-stagger>
+    <div>
+      <h1 class="text-3xl">Crear perfil de jefe</h1>
+      <p class="mt-2 text-sm text-muted">Registra tu tienda para gestionar el inventario y el cuadre.</p>
+    </div>
+
+    <form method="post" action="/auth/jefe/registro" class="mt-8 space-y-5" novalidate>
+      <%- include('../partials/errors', { formErrors: errors }) %>
+      <div>
+        <label class="label" for="name">Nombre</label>
+        <input class="input" id="name" name="name" value="<%= values.name || '' %>" autocomplete="name" required autofocus>
+      </div>
+      <div>
+        <label class="label" for="username">Usuario</label>
+        <input class="input" id="username" name="username" value="<%= values.username || '' %>" autocomplete="username" autocapitalize="none" required>
+        <p class="hint">Letras, números, punto o guion bajo.</p>
+      </div>
+      <div>
+        <label class="label" for="password">Contraseña</label>
+        <input class="input" type="password" id="password" name="password" autocomplete="new-password" required>
+        <p class="hint">Mínimo 6 caracteres.</p>
+      </div>
+      <div>
+        <label class="label" for="confirm">Repetir contraseña</label>
+        <input class="input" type="password" id="confirm" name="confirm" autocomplete="new-password" required>
+      </div>
+      <button class="btn btn-ink w-full">Crear perfil</button>
+    </form>
+
+    <p class="mt-8 border-t border-line pt-6 text-sm text-muted">
+      ¿Ya tienes cuenta?
+      <a href="/auth/jefe" class="link">Iniciar sesión</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,98 @@
+<div data-stagger>
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl">Inventario</h1>
+      <p class="mt-1 text-sm text-muted">Los productos de tu tienda y cuánto queda de cada uno.</p>
+    </div>
+    <a href="/productos/nuevo" class="btn btn-ink"><%- icon('plus') %>Nuevo producto</a>
+  </header>
+
+  <dl class="mt-8 grid gap-6 border-y border-line py-5 sm:grid-cols-3 sm:gap-0">
+    <div class="stat sm:pr-6">
+      <dt>Productos activos</dt>
+      <dd><%= summary.count %></dd>
+    </div>
+    <div class="stat sm:border-l sm:border-line sm:px-6">
+      <dt>Con stock bajo o agotados</dt>
+      <dd class="<%= summary.low ? '!text-warn' : '' %>"><%= summary.low %></dd>
+    </div>
+    <div class="stat sm:border-l sm:border-line sm:pl-6">
+      <dt>Valor a precio de compra</dt>
+      <dd><%= money(summary.value) %></dd>
+    </div>
+  </dl>
+
+  <form method="get" action="/productos" class="mt-8 flex flex-wrap items-center gap-2">
+    <label class="relative min-w-[220px] flex-1" for="q">
+      <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"><%- icon('magnifying-glass') %></span>
+      <input class="input !pl-9" type="search" id="q" name="q" value="<%= filters.q %>" placeholder="Buscar por nombre" aria-label="Buscar por nombre">
+    </label>
+    <select class="input !w-auto" name="estado" aria-label="Filtrar por estado">
+      <option value="">Todos los estados</option>
+      <option value="bajo" <%= filters.estado === 'bajo' ? 'selected' : '' %>>Stock bajo (hasta <%= lowStock %>)</option>
+      <option value="agotado" <%= filters.estado === 'agotado' ? 'selected' : '' %>>Agotados</option>
+      <option value="inactivo" <%= filters.estado === 'inactivo' ? 'selected' : '' %>>Inactivos</option>
+    </select>
+    <select class="input !w-auto" name="limit" aria-label="Productos por página">
+      <% limits.forEach(function (n) { %><option value="<%= n %>" <%= pager.limit === n ? 'selected' : '' %>><%= n %> por página</option><% }) %>
+    </select>
+    <button class="btn btn-quiet">Filtrar</button>
+    <% if (filters.q || filters.estado) { %><a href="/productos" class="link">Limpiar</a><% } %>
+  </form>
+
+  <div class="mt-4 overflow-x-auto">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th class="r">Compra</th>
+          <th class="r">Venta</th>
+          <th class="r">Ganancia</th>
+          <th class="r">Cantidad</th>
+          <th>Estado</th>
+          <th><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (products.length === 0) { %>
+          <tr><td colspan="7" class="!py-14 text-center">
+            <% if (filters.q || filters.estado) { %>
+              <p class="text-muted">Ningún producto coincide con esos filtros.</p>
+            <% } else { %>
+              <p class="font-medium">Tu inventario está vacío</p>
+              <p class="mt-1 text-sm text-muted">Agrega el primer producto para que tus dependientes puedan vender.</p>
+              <a href="/productos/nuevo" class="btn btn-ink btn-sm mt-4"><%- icon('plus') %>Nuevo producto</a>
+            <% } %>
+          </td></tr>
+        <% } %>
+        <% products.forEach(function (p) { %>
+          <tr>
+            <td class="font-medium"><a class="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-line-strong" href="/productos/<%= p.id %>"><%= p.name %></a></td>
+            <td class="r num text-muted"><%= money(p.costPrice) %></td>
+            <td class="r num"><%= money(p.salePrice) %></td>
+            <td class="r num <%= p.margin < 0 ? 'text-danger' : 'text-ok' %>"><%= money(p.margin) %></td>
+            <td class="r num font-medium"><%= p.stock %></td>
+            <td>
+              <% if (!p.active) { %><span class="tag tag-mute">Inactivo</span>
+              <% } else if (p.stock === 0) { %><span class="tag tag-danger">Agotado</span>
+              <% } else if (p.isLow) { %><span class="tag tag-warn">Stock bajo</span>
+              <% } else { %><span class="tag tag-ok">Disponible</span><% } %>
+            </td>
+            <td>
+              <div class="flex items-center justify-end gap-0.5">
+                <a class="icon-btn" href="/productos/<%= p.id %>/editar" aria-label="Editar <%= p.name %>" title="Editar"><%- icon('pencil-simple', 'size-[18px]') %></a>
+                <form method="post" action="/productos/<%= p.id %>?_method=DELETE"
+                      data-confirm="¿Eliminar &quot;<%= p.name %>&quot;?" data-confirm-detail="Esta acción no se puede deshacer."
+                      data-confirm-label="Eliminar" data-confirm-tone="danger">
+                  <button class="icon-btn is-danger" aria-label="Eliminar <%= p.name %>" title="Eliminar"><%- icon('trash', 'size-[18px]') %></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <%- include('../partials/pagination') %>
+</div>

@@ -1,0 +1,10 @@
+<% if (locals.flash) { %>
+  <% const ok = flash.type === 'success'; %>
+  <div class="pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-4">
+    <div class="flash-in pointer-events-auto flex max-w-md items-start gap-2.5 rounded-lg border bg-surface px-4 py-3 text-sm shadow-[0_12px_32px_-12px_rgb(14_15_17/0.35)] <%= ok ? 'border-ok/40' : 'border-danger/40' %>"
+         role="<%= ok ? 'status' : 'alert' %>" data-flash>
+      <span class="mt-0.5 <%= ok ? 'text-ok' : 'text-danger' %>"><%- icon(ok ? 'check-circle' : 'warning-circle', 'size-[18px]') %></span>
+      <p><%= flash.message %></p>
+    </div>
+  </div>
+<% } %>

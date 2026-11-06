@@ -1,0 +1,142 @@
+<div data-stagger>
+  <header>
+    <h1 class="text-2xl">Vender</h1>
+    <p class="mt-1 text-sm text-muted">Elige los productos y confirma la venta desde el ticket.</p>
+  </header>
+
+  <div class="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+    <!-- Inventario -->
+    <section aria-label="Inventario">
+      <label class="relative block" for="product-filter">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"><%- icon('magnifying-glass') %></span>
+        <input id="product-filter" class="input !pl-9 !pr-10" type="search" placeholder="Buscar producto" autocomplete="off">
+        <kbd class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-sm border border-line-strong px-1.5 font-mono text-[11px] text-faint sm:block">/</kbd>
+      </label>
+
+      <div class="mt-3 overflow-x-auto">
+        <table class="tbl">
+          <thead>
+            <tr><th>Producto</th><th class="r">Precio</th><th class="r">Cantidad</th><th><span class="sr-only">Agregar</span></th></tr>
+          </thead>
+          <tbody id="product-list">
+            <% if (products.length === 0) { %>
+              <tr><td colspan="4" class="!py-14 text-center">
+                <p class="font-medium">No hay productos disponibles</p>
+                <p class="mt-1 text-sm text-muted">Avisa al jefe para que cargue o reponga el inventario.</p>
+              </td></tr>
+            <% } %>
+            <% products.forEach(function (p) { %>
+              <tr data-name="<%= p.name.toLowerCase() %>">
+                <td class="font-medium">
+                  <%= p.name %>
+                  <span class="tag tag-accent num ml-2 hidden" data-in-cart></span>
+                </td>
+                <td class="r num"><%= money(p.salePrice) %></td>
+                <td class="r num <%= p.stock <= lowStock ? 'font-medium text-warn' : 'text-muted' %>"><%= p.stock %></td>
+                <td class="r">
+                  <button type="button" class="btn btn-quiet btn-sm" data-add
+                          data-id="<%= p.id %>" data-name="<%= p.name %>" data-price="<%= p.salePrice %>" data-stock="<%= p.stock %>">
+                    <%- icon('plus') %><span data-add-label>Agregar</span>
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p id="no-match" class="mt-6 hidden text-center text-sm text-muted">Ningún producto coincide con la búsqueda.</p>
+    </section>
+
+    <!-- Ticket -->
+    <aside aria-label="Ticket de venta" class="lg:sticky lg:top-6">
+      <div class="panel p-5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base">Ticket</h2>
+          <span class="num text-xs text-muted"><span id="cart-count">0</span> artículos</span>
+        </div>
+
+        <div id="cart-empty" class="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted">
+          <%- icon('shopping-cart-simple', 'size-6 text-faint') %>
+          <p>Agrega productos para armar la venta.</p>
+        </div>
+
+        <ul id="cart-items" class="divide-y divide-line"></ul>
+
+        <div class="mt-3 border-t border-dashed border-line-strong pt-4">
+          <div class="flex items-baseline justify-between">
+            <span class="text-sm text-muted">Total</span>
+            <span id="cart-total" class="num text-3xl font-medium tracking-tight">$0,00</span>
+          </div>
+        </div>
+
+        <form method="post" action="/vender" id="cart-form" class="mt-4 space-y-2">
+          <input type="hidden" name="items" id="cart-input" value="[]">
+          <button id="cart-confirm" class="btn btn-accent w-full !py-2.5" disabled><%- icon('check-circle') %>Confirmar venta</button>
+          <button type="button" id="cart-clear" class="btn w-full text-muted" disabled>Vaciar ticket</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Ventas registradas -->
+  <section class="mt-14" aria-label="Ventas registradas">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h2 class="text-lg">Ventas registradas</h2>
+        <p class="mt-1 text-sm text-muted">
+          <span class="num text-ink"><%= sales.length %></span> venta<%= sales.length === 1 ? '' : 's' %> sin finalizar,
+          <span class="num text-ink"><%= money(dayTotal) %></span> en total.
+        </p>
+      </div>
+      <form method="post" action="/vender/finalizar"
+            data-confirm="¿Finalizar el día?" data-confirm-detail="Tus ventas pasan al jefe para el cuadre y empiezas el siguiente día de cero."
+            data-confirm-label="Finalizar día">
+        <button class="btn btn-ink" <%= sales.length === 0 ? 'disabled' : '' %>><%- icon('calendar-check') %>Finalizar día</button>
+      </form>
+    </div>
+
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr><th>Hora</th><th>Productos</th><th class="r">Total</th><th><span class="sr-only">Anular</span></th></tr>
+        </thead>
+        <tbody>
+          <% if (sales.length === 0) { %>
+            <tr><td colspan="4" class="!py-10 text-center text-muted">Todavía no hay ventas en este día.</td></tr>
+          <% } %>
+          <% sales.forEach(function (s) { %>
+            <tr>
+              <td class="num whitespace-nowrap text-muted"><%= fmtDate(s.createdAt) %></td>
+              <td>
+                <% s.items.forEach(function (i) { %><span class="mr-3 inline-block"><span class="num text-muted"><%= i.quantity %>x</span> <%= i.productName %></span><% }) %>
+              </td>
+              <td class="r num font-medium"><%= money(s.total) %></td>
+              <td class="r">
+                <form method="post" action="/vender/ventas/<%= s.id %>?_method=DELETE"
+                      data-confirm="¿Anular esta venta?" data-confirm-detail="Los productos vuelven al inventario."
+                      data-confirm-label="Anular venta" data-confirm-tone="danger">
+                  <button class="icon-btn is-danger" aria-label="Anular venta" title="Anular"><%- icon('x', 'size-[18px]') %></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<template id="ticket-line-template">
+  <li class="ticket-line flex items-center gap-3 py-3">
+    <div class="min-w-0 flex-1">
+      <p class="truncate text-sm font-medium" data-name></p>
+      <p class="num text-xs text-muted" data-unit></p>
+    </div>
+    <div class="flex items-center">
+      <button type="button" class="icon-btn" data-dec><%- icon('minus') %></button>
+      <span class="num w-7 text-center text-sm font-medium" data-qty></span>
+      <button type="button" class="icon-btn" data-inc><%- icon('plus') %></button>
+    </div>
+    <span class="num w-[4.5rem] text-right text-sm font-medium" data-line></span>
+  </li>
+</template>

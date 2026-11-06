@@ -1,0 +1,28 @@
+<div data-stagger>
+  <header>
+    <a href="/dependientes" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink"><%- icon('arrow-left') %>Dependientes</a>
+    <h1 class="text-2xl">Nuevo dependiente</h1>
+    <p class="mt-1 text-sm text-muted">Con estos datos entrará a vender.</p>
+  </header>
+
+  <form method="post" action="/dependientes" class="mt-8 max-w-md space-y-5" novalidate>
+    <%- include('../partials/errors', { formErrors: errors }) %>
+    <div>
+      <label class="label" for="name">Nombre</label>
+      <input class="input" id="name" name="name" value="<%= values.name || '' %>" required autofocus>
+    </div>
+    <div>
+      <label class="label" for="username">Usuario</label>
+      <input class="input" id="username" name="username" value="<%= values.username || '' %>" autocomplete="off" autocapitalize="none" required>
+    </div>
+    <div>
+      <label class="label" for="password">Contraseña</label>
+      <input class="input num" type="text" id="password" name="password" autocomplete="off" required>
+      <p class="hint">Mínimo 6 caracteres. Se muestra para que puedas anotarla y dársela.</p>
+    </div>
+    <div class="flex gap-2 pt-2">
+      <button class="btn btn-ink">Crear dependiente</button>
+      <a href="/dependientes" class="btn btn-quiet">Cancelar</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,33 @@
+<div data-stagger>
+  <header>
+    <a href="/productos" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink"><%- icon('arrow-left') %>Inventario</a>
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl"><%= product.name %></h1>
+          <% if (!product.active) { %><span class="tag tag-mute">Inactivo</span>
+          <% } else if (product.stock === 0) { %><span class="tag tag-danger">Agotado</span>
+          <% } else if (product.isLow) { %><span class="tag tag-warn">Stock bajo</span>
+          <% } else { %><span class="tag tag-ok">Disponible</span><% } %>
+        </div>
+        <p class="mt-1 text-sm text-muted">Creado el <%= fmtDate(product.createdAt) %>. Editado el <%= fmtDate(product.updatedAt) %>.</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/productos/<%= product.id %>/editar" class="btn btn-quiet"><%- icon('pencil-simple') %>Editar</a>
+        <form method="post" action="/productos/<%= product.id %>?_method=DELETE"
+              data-confirm="¿Eliminar &quot;<%= product.name %>&quot;?" data-confirm-detail="Esta acción no se puede deshacer."
+              data-confirm-label="Eliminar" data-confirm-tone="danger">
+          <button class="btn btn-quiet text-danger"><%- icon('trash') %>Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <dl class="mt-10 grid grid-cols-2 border-t border-line sm:grid-cols-3">
+    <div class="stat border-b border-line py-5 pr-6"><dt>Precio de compra</dt><dd><%= money(product.costPrice) %></dd></div>
+    <div class="stat border-b border-line py-5 sm:border-l sm:px-6"><dt>Precio a vender</dt><dd><%= money(product.salePrice) %></dd></div>
+    <div class="stat border-b border-line py-5 pr-6 sm:border-l sm:px-6"><dt>Ganancia por unidad</dt><dd class="<%= product.margin < 0 ? '!text-danger' : '!text-ok' %>"><%= money(product.margin) %></dd></div>
+    <div class="stat py-5 pr-6"><dt>En inventario</dt><dd><%= product.stock %></dd></div>
+    <div class="stat py-5 sm:border-l sm:border-line sm:px-6"><dt>Unidades vendidas</dt><dd><%= sold %></dd></div>
+  </dl>
+</div>
