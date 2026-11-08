@@ -31,6 +31,23 @@ app.use(
   })
 );
 app.use(express.static(path.join(__dirname, 'public')));
+
+// En Vercel no hay un "arranque" del servidor: las tablas se crean en la primera petición de cada instancia.
+// sync() solo crea lo que falta, así que es seguro repetirlo.
+if (process.env.VERCEL) {
+  let ready = null;
+  app.use(async (req, res, next) => {
+    try {
+      ready = ready || sequelize.sync();
+      await ready;
+      next();
+    } catch (err) {
+      ready = null; // reintenta en la siguiente petición
+      next(err);
+    }
+  });
+}
+
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());

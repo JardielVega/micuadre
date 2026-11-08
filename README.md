@@ -39,7 +39,9 @@ controllers/   reciben la petición y responden
 routes/        URLs de cada módulo
 middlewares/   auth (JWT y roles), errores, flash, validaciones
 views/         layouts, partials y páginas EJS
-public/        css (Tailwind compilado) y js (carrito)
+public/        css (Tailwind compilado), fuentes y js (carrito)
+assets/        iconos SVG usados en las vistas
+api/           punto de entrada para Vercel
 scripts/       seed con datos de demostración
 tests/         pruebas automáticas
 ```
@@ -78,7 +80,7 @@ Las tablas se crean solas al arrancar. Con `npm run dev` se reinicia al guardar 
 | Jefe | `jefe` | `jefe123` |
 | Dependiente | `dependiente` | `dependiente123` |
 
-Son solo para desarrollo local. Sin el seed, entra como jefe, crea tu perfil y luego crea dependientes desde el menú *Dependientes*.
+Son solo para desarrollo local (no los uses en una base de datos publicada). Sin el seed, entra como jefe, crea tu perfil y luego crea dependientes desde el menú *Dependientes*.
 
 ### Variables de entorno
 
@@ -105,6 +107,30 @@ Usan la base `tienda_test` (la crea el contenedor de Docker). Cubren login, role
 3. Al terminar, el dependiente pulsa **Finalizar día**.
 4. El jefe abre **Cuadre**, ve el total vendido, el costo y la ganancia, y el detalle por producto.
 
-## Despliegue
+## Despliegue (Vercel + Neon)
 
-El enlace público no aplica: el proyecto queda en GitHub y se ejecuta en local siguiendo los pasos de arriba.
+La aplicación se despliega en **Vercel** y usa **PostgreSQL en Neon**.
+
+1. En [Neon](https://neon.com) crea un proyecto y copia la cadena de conexión con **Connection pooling** activado. Debe terminar en `?sslmode=require`.
+2. En [Vercel](https://vercel.com/new) importa este repositorio de GitHub.
+3. Antes de desplegar, en **Environment Variables** agrega:
+
+   | Variable | Valor |
+   |---|---|
+   | `DATABASE_URL` | la cadena de conexión de Neon |
+   | `JWT_SECRET` | un texto largo y aleatorio |
+   | `DB_SSL` | `true` |
+
+4. Pulsa **Deploy**. Las tablas se crean solas en la primera visita.
+
+Los secretos solo viven en las variables de entorno de Vercel, nunca en el repositorio. En producción no se ejecuta `npm run seed`: el jefe se registra desde **Crear perfil**.
+
+### Enlace en producción
+
+(pendiente de agregar)
+
+## Créditos
+
+- Iconos: [Phosphor Icons](https://phosphoricons.com) (MIT), copiados en `assets/icons`.
+- Ilustración de la pantalla de inicio: `trending-up` de [Tabler Icons](https://tabler.io/icons) (MIT).
+- Tipografías: Geist y Geist Mono (SIL Open Font License), en `public/fonts`.

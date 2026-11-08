@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// Iconos Phosphor (regular) incrustados como SVG en las vistas: <%- icon('plus') %>
-const dir = path.join(__dirname, '..', 'node_modules', '@phosphor-icons', 'core', 'assets', 'regular');
+// Iconos Phosphor (MIT) copiados a assets/icons e incrustados como SVG: <%- icon('plus') %>
+// Viven dentro del proyecto para que también se empaqueten al desplegar en Vercel.
+const dir = path.join(__dirname, '..', 'assets', 'icons');
 const cache = new Map();
 
 function icon(name, cls = 'size-4') {
