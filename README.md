@@ -127,7 +127,7 @@ Los secretos solo viven en las variables de entorno de Vercel, nunca en el repos
 
 ### Enlace en producción
 
-(pendiente de agregar)
+https://micuadre-sable.vercel.app
 
 ## Créditos
 
