@@ -32,6 +32,29 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Ayudas disponibles en todas las vistas. Va antes que cualquier otra cosa que pueda fallar
+// (base de datos, sesión...) para que la página de error siempre pueda dibujarse.
+app.use((req, res, next) => {
+  res.locals.user = null; // loadUser lo reemplaza si hay sesión
+  res.locals.pageScript = null;
+  res.locals.limits = LIMITS;
+  res.locals.icon = icon;
+  res.locals.path = req.path;
+  res.locals.money = (n) =>
+    '$' + Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  res.locals.fmtDate = (d) => new Date(d).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+  // Construye una URL conservando los filtros actuales: urlWith({ page: 2 })
+  // La ruta completa se guarda ahora: dentro de un router, req.path ya no incluye el prefijo (/productos).
+  const pathname = req.originalUrl.split('?')[0];
+  res.locals.urlWith = (extra) => {
+    const params = new URLSearchParams({ ...req.query, ...extra });
+    for (const [key, value] of [...params]) if (value === '') params.delete(key);
+    const qs = params.toString();
+    return pathname + (qs ? `?${qs}` : '');
+  };
+  next();
+});
+
 // En Vercel no hay un "arranque" del servidor: las tablas se crean en la primera petición de cada instancia.
 // sync() solo crea lo que falta, así que es seguro repetirlo.
 if (process.env.VERCEL) {
@@ -54,28 +77,6 @@ app.use(cookieParser());
 app.use(methodOverride('_method')); // permite PUT/DELETE desde formularios: ?_method=DELETE
 app.use(flash);
 app.use(loadUser);
-
-// Ayudas disponibles en todas las vistas.
-app.use((req, res, next) => {
-  res.locals.user = res.locals.user || null;
-  res.locals.pageScript = null;
-  res.locals.limits = LIMITS;
-  res.locals.icon = icon;
-  res.locals.path = req.path;
-  res.locals.money = (n) =>
-    '$' + Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  res.locals.fmtDate = (d) => new Date(d).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
-  // Construye una URL conservando los filtros actuales: urlWith({ page: 2 })
-  // La ruta completa se guarda ahora: dentro de un router, req.path ya no incluye el prefijo (/productos).
-  const pathname = req.originalUrl.split('?')[0];
-  res.locals.urlWith = (extra) => {
-    const params = new URLSearchParams({ ...req.query, ...extra });
-    for (const [key, value] of [...params]) if (value === '') params.delete(key);
-    const qs = params.toString();
-    return pathname + (qs ? `?${qs}` : '');
-  };
-  next();
-});
 
 app.get('/', authController.landing);
 app.use('/auth', require('./routes/auth'));
